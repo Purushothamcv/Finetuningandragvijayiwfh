@@ -46,7 +46,13 @@ quotes = data['quotes']
 authors = data['authors']
 tags = data['tags']
 combined_texts = data['combined_text']
+
 def parse_query(query_text):
+    """
+    Robust query parser that extracts filters from natural language queries.
+    Processing order: Century -> Tags -> Gender -> Author -> Topic cleanup
+    """
+    original_query = query_text
     filters = {
         'topic': query_text,
         'author': None,
@@ -54,57 +60,108 @@ def parse_query(query_text):
         'tags': [],
         'century': None
     }
-    author_patterns = [
-        r'by\s+([a-zA-Z\s]+?)(?:\s+authors?)?(?:\s|$)',
-        r'from\s+([a-zA-Z\s]+?)(?:\s+authors?)?(?:\s|$)',
+    
+    # Track what we've removed to clean up the topic later
+    removed_parts = []
+    
+    # 1. CENTURY FILTER - Check first to avoid capturing as author
+    century_patterns = [
+        (r'\b20th[- ]century\b', 20),
+        (r'\b21st[- ]century\b', 21),
+        (r'\b19th[- ]century\b', 19),
+        (r'\b18th[- ]century\b', 18),
+        (r'\b17th[- ]century\b', 17),
+        (r'\bancient\b', 'ancient'),
+        (r'\bmodern\b', 'modern'),
+        (r'\bcontemporary\b', 'modern')
     ]
-    for pattern in author_patterns:
+    for pattern, century in century_patterns:
         match = re.search(pattern, query_text, re.IGNORECASE)
         if match:
-            filters['author'] = match.group(1).strip()
-            filters['topic'] = re.sub(pattern, '', query_text, flags=re.IGNORECASE).strip()
+            filters['century'] = century
+            removed_parts.append(match.group(0))
+            query_text = re.sub(pattern, '', query_text, flags=re.IGNORECASE).strip()
             break
-    gender_keywords = {
-        'women': ['women', 'female', 'woman'],
-        'men': ['men', 'male', 'man']
-    }
-    for gender, keywords in gender_keywords.items():
-        if any(kw in query_text.lower() for kw in keywords):
-            filters['gender'] = gender
-            for kw in keywords:
-                filters['topic'] = re.sub(rf'\b{kw}\b', '', filters['topic'], flags=re.IGNORECASE).strip()
-            break
+    
+    # 2. TAG FILTER - Extract tags with quotes or after "tagged with"
     tag_patterns = [
         r"tagged?\s+with\s+(?:both\s+)?['\"]([^'\"]+)['\"](?:\s+and\s+['\"]([^'\"]+)['\"])?",
-        r"tags?:\s*([a-zA-Z,\s-]+)",
-        r"categories?:\s*([a-zA-Z,\s-]+)"
+        r"about\s+['\"]([^'\"]+)['\"](?:\s+and\s+['\"]([^'\"]+)['\"])?",
+        r"tags?:\s*['\"]?([a-zA-Z,\s-]+?)['\"]?(?:\s+and\s+['\"]([^'\"]+)['\"])?(?:\s|$)",
     ]
     for pattern in tag_patterns:
         match = re.search(pattern, query_text, re.IGNORECASE)
         if match:
-            if match.lastindex == 2 and match.group(2):
+            removed_parts.append(match.group(0))
+            if match.lastindex >= 2 and match.group(2):
                 filters['tags'] = [match.group(1).strip(), match.group(2).strip()]
             elif match.lastindex >= 1:
                 tags_str = match.group(1)
                 filters['tags'] = [t.strip() for t in tags_str.split(',') if t.strip()]
-            filters['topic'] = re.sub(pattern, '', filters['topic'], flags=re.IGNORECASE).strip()
+            query_text = re.sub(pattern, '', query_text, flags=re.IGNORECASE).strip()
             break
-    century_patterns = [
-        (r'20th[- ]century', 20),
-        (r'21st[- ]century', 21),
-        (r'19th[- ]century', 19),
-        (r'18th[- ]century', 18),
-        (r'ancient', 'ancient'),
-        (r'modern', 'modern')
+    
+    # 3. GENDER FILTER - Check before author to avoid "women" being captured as author
+    gender_keywords = {
+        'women': [r'\bwomen\b', r'\bfemale\b', r'\bwoman\b'],
+        'men': [r'\bmen\b', r'\bmale\b', r'\bman\b']
+    }
+    for gender, patterns in gender_keywords.items():
+        for pattern in patterns:
+            match = re.search(pattern, query_text, re.IGNORECASE)
+            if match:
+                filters['gender'] = gender
+                removed_parts.append(match.group(0))
+                query_text = re.sub(pattern, '', query_text, flags=re.IGNORECASE).strip()
+                break
+        if filters['gender']:
+            break
+    
+    # 4. AUTHOR FILTER - Extract author name after "by" or "from"
+    # Use non-greedy matching and stop at common keywords
+    author_patterns = [
+        r'by\s+([A-Z][a-zA-Z\s\.]+?)(?=\s+(?:about|on|tagged|from|$)|$)',
+        r'from\s+([A-Z][a-zA-Z\s\.]+?)(?=\s+(?:about|on|tagged|by|$)|$)',
+        r'written\s+by\s+([A-Z][a-zA-Z\s\.]+?)(?=\s+(?:about|on|tagged|$)|$)',
+        r'author\s+([A-Z][a-zA-Z\s\.]+?)(?=\s+(?:about|on|tagged|$)|$)',
     ]
-    for pattern, century in century_patterns:
-        if re.search(pattern, query_text, re.IGNORECASE):
-            filters['century'] = century
-            filters['topic'] = re.sub(pattern, '', filters['topic'], flags=re.IGNORECASE).strip()
-            break
-    filters['topic'] = re.sub(r'\s+', ' ', filters['topic']).strip()
-    filters['topic'] = re.sub(r'^(show\s+me|find|get|give\s+me|display)\s+', '', filters['topic'], flags=re.IGNORECASE)
-    filters['topic'] = re.sub(r'\s+authors?$', '', filters['topic'], flags=re.IGNORECASE)
+    
+    for pattern in author_patterns:
+        match = re.search(pattern, query_text, re.IGNORECASE)
+        if match:
+            author_name = match.group(1).strip()
+            # Validate it's not a common word or filter keyword
+            invalid_authors = ['authors', 'philosophers', 'writers', 'poets', 'people', 'quotes']
+            if author_name.lower() not in invalid_authors and len(author_name) > 2:
+                filters['author'] = author_name
+                removed_parts.append(match.group(0))
+                query_text = re.sub(pattern, '', query_text, flags=re.IGNORECASE).strip()
+                break
+    
+    # 5. CLEAN UP TOPIC - Remove common filler words and normalize
+    topic = original_query
+    
+    # Remove all identified filter parts
+    for part in removed_parts:
+        topic = re.sub(re.escape(part), '', topic, flags=re.IGNORECASE)
+    
+    # Remove common query prefixes
+    topic = re.sub(r'^\s*(show\s+me|find|get|give\s+me|display|search\s+for|look\s+for)\s+', '', topic, flags=re.IGNORECASE)
+    
+    # Remove prepositions and articles left over from filter removal
+    topic = re.sub(r'\s+(by|from|about|on|with|for|the|a|an)\s+', ' ', topic, flags=re.IGNORECASE)
+    
+    # Remove "authors", "quotes" suffixes
+    topic = re.sub(r'\s+(authors?|quotes?|philosophers?|writers?|poets?)\s*$', '', topic, flags=re.IGNORECASE)
+    
+    # Clean up extra whitespace
+    topic = re.sub(r'\s+', ' ', topic).strip()
+    
+    # Remove quotes if the entire topic is quoted
+    topic = re.sub(r'^["\'](.+)["\']$', r'\1', topic)
+    
+    filters['topic'] = topic if topic else original_query
+    
     return filters
 def search_quotes(query, top_k=5, author_filter=None, gender_filter=None, tag_filters=None, century_filter=None):
     query_vec = vectorizer.transform([query])
@@ -332,6 +389,9 @@ def generate_ai_summary(query, results):
             if isinstance(tags_list, list) and tags_list:
                 context += f"   Tags: {', '.join(tags_list[:3])}\n"
         context += f"   Relevance: {r['similarity']:.1%}\n\n"
+    
+    prompt = f"User query: '{query}'\n\n{context}\nProvide a brief, insightful analysis of these quotes in relation to the query. Highlight common themes and key takeaways."
+    
     try:
         response = groq_client.chat.completions.create(
             model="llama-3.1-70b-versatile",
@@ -349,9 +409,21 @@ st.markdown('<div class="main-header">💬 AI Quote Search Engine</div>', unsafe
 st.markdown("### Natural Language Search with Advanced Filtering")
 st.markdown("---")
 with st.sidebar:
-    st.image("https://img.icons8.com/clouds/200/quote.png", width=150)
     st.title("About")
+    st.markdown("""
+    This AI-powered search engine uses TF-IDF vectorization to find relevant quotes from a database of 2,508 quotes. 
+    Use natural language queries with advanced filters!
+    """)
+    
     st.title("Example Queries")
+    st.markdown("""
+    - *"quotes about courage by women authors"*
+    - *"wisdom from ancient philosophers"*
+    - *"quotes tagged with 'life' and 'love'"*
+    - *"inspirational quotes by Shakespeare"*
+    - *"quotes about success and failure"*
+    """)
+    
     st.title("Statistics")
     st.metric("Total Quotes", "2,508")
     st.metric("Unique Authors", f"{len(set(authors))}")
@@ -463,24 +535,37 @@ if st.button("🔍 Search", type="primary", use_container_width=True) or query:
                 st.subheader(f"📊 Top {len(results)} Results")
                 for i, result in enumerate(results, 1):
                     with st.container():
-                        cols = st.columns([1, 1, 1, 1])
+                        # Header row with rank and similarity
+                        cols = st.columns([1, 3])
                         with cols[0]:
-                            st.markdown(f"**Rank:** #{i}")
-                        if show_scores:
-                            with cols[1]:
+                            st.markdown(f"### #{i}")
+                        with cols[1]:
+                            if show_scores:
                                 score_color = "🟢" if result['similarity'] > 0.7 else "🟡" if result['similarity'] > 0.4 else "🟠"
                                 st.markdown(f"**Similarity:** {score_color} {result['similarity']:.2%}")
+                        
+                        # Quote text - prominent display
+                        st.markdown(f"### 💬 \"{result['quote']}\"")
+                        
+                        # Author name
+                        st.markdown(f"**— {result['author']}**")
+                        
+                        # Tags row
                         if show_tags and result['tags']:
-                            with cols[2]:
-                                try:
-                                    tag_list = eval(result['tags']) if isinstance(result['tags'], str) else result['tags']
-                                    tag_str = " ".join([f"`{tag}`" for tag in tag_list[:3]])
+                            try:
+                                tag_list = eval(result['tags']) if isinstance(result['tags'], str) else result['tags']
+                                if isinstance(tag_list, list) and tag_list:
+                                    tag_str = " ".join([f"`{tag}`" for tag in tag_list[:5]])
                                     st.markdown(f"**Tags:** {tag_str}")
-                                except:
-                                    st.markdown(f"**Tags:** `{result['tags'][:30]}...`")
-                        with cols[3]:
+                            except:
+                                pass
+                        
+                        # Action buttons
+                        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 4])
+                        with col_btn1:
                             if st.button(f"📋 Copy", key=f"copy_{i}"):
-                                st.code(f'"{result["quote"]}" - {result["author"]}')
+                                st.code(f'"{result["quote"]}" - {result["author"]}', language="text")
+                        
                         st.markdown("---")
                 st.subheader("📥 Export Results")
                 col_exp1, col_exp2 = st.columns(2)

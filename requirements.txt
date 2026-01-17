@@ -10,3 +10,4 @@ scikit-learn
 ragas
 openai
 python-dotenv
+plotly
