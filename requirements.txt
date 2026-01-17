@@ -1,0 +1,12 @@
+# Basic dependencies for RAG quote retrieval system
+datasets
+pandas
+numpy
+sentence-transformers
+faiss-cpu
+torch
+streamlit
+scikit-learn
+ragas
+openai
+python-dotenv

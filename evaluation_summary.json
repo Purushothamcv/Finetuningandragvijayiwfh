@@ -1,0 +1,85 @@
+{
+  "evaluation_date": "2026-01-17",
+  "system": "Quote Search Engine (TF-IDF)",
+  "dataset_size": 2508,
+  "num_test_cases": 5,
+  "metrics": {
+    "avg_similarity": 0.5740996693227404,
+    "theme_coverage": 0.96,
+    "author_relevance": 0.04,
+    "diversity_score": 0.9199999999999999,
+    "overall_score": 0.7385249173306849
+  },
+  "individual_results": [
+    {
+      "query": "wisdom and knowledge",
+      "description": "Philosophical quotes about wisdom and knowledge",
+      "avg_similarity": 0.6253422419859621,
+      "theme_coverage": 1.0,
+      "author_relevance": 0.2,
+      "diversity_score": 1.0,
+      "top_confidence": 0.8824136572026635,
+      "retrieval_score": 0.6253422419859621,
+      "precision_score": 1.0,
+      "relevance_score": 0.6,
+      "overall_score": 0.8063355604964906,
+      "num_results": 5
+    },
+    {
+      "query": "love and relationships",
+      "description": "Romantic quotes about love",
+      "avg_similarity": 0.36570268462774325,
+      "theme_coverage": 1.0,
+      "author_relevance": 0.0,
+      "diversity_score": 1.0,
+      "top_confidence": 0.4046143344075497,
+      "retrieval_score": 0.36570268462774325,
+      "precision_score": 1.0,
+      "relevance_score": 0.5,
+      "overall_score": 0.7164256711569358,
+      "num_results": 5
+    },
+    {
+      "query": "courage and strength",
+      "description": "Inspirational quotes about courage",
+      "avg_similarity": 0.574676590269324,
+      "theme_coverage": 1.0,
+      "author_relevance": 0.0,
+      "diversity_score": 0.8,
+      "top_confidence": 0.6712479611163189,
+      "retrieval_score": 0.574676590269324,
+      "precision_score": 1.0,
+      "relevance_score": 0.5,
+      "overall_score": 0.718669147567331,
+      "num_results": 5
+    },
+    {
+      "query": "success and failure",
+      "description": "Motivational quotes about success",
+      "avg_similarity": 0.698429669893188,
+      "theme_coverage": 0.8,
+      "author_relevance": 0.0,
+      "diversity_score": 0.8,
+      "top_confidence": 0.8780803740628211,
+      "retrieval_score": 0.698429669893188,
+      "precision_score": 0.8,
+      "relevance_score": 0.4,
+      "overall_score": 0.674607417473297,
+      "num_results": 5
+    },
+    {
+      "query": "truth and honesty",
+      "description": "Quotes about truth and honesty",
+      "avg_similarity": 0.606347159837484,
+      "theme_coverage": 1.0,
+      "author_relevance": 0.0,
+      "diversity_score": 1.0,
+      "top_confidence": 0.7575286927663041,
+      "retrieval_score": 0.606347159837484,
+      "precision_score": 1.0,
+      "relevance_score": 0.5,
+      "overall_score": 0.776586789959371,
+      "num_results": 5
+    }
+  ]
+}

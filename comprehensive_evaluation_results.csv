@@ -1,0 +1,6 @@
+query,description,avg_similarity,theme_coverage,author_relevance,diversity_score,top_confidence,retrieval_score,precision_score,relevance_score,overall_score,num_results
+wisdom and knowledge,Philosophical quotes about wisdom and knowledge,0.6253422419859621,1.0,0.2,1.0,0.8824136572026635,0.6253422419859621,1.0,0.6,0.8063355604964906,5
+love and relationships,Romantic quotes about love,0.36570268462774325,1.0,0.0,1.0,0.4046143344075497,0.36570268462774325,1.0,0.5,0.7164256711569358,5
+courage and strength,Inspirational quotes about courage,0.574676590269324,1.0,0.0,0.8,0.6712479611163189,0.574676590269324,1.0,0.5,0.718669147567331,5
+success and failure,Motivational quotes about success,0.698429669893188,0.8,0.0,0.8,0.8780803740628211,0.698429669893188,0.8,0.4,0.674607417473297,5
+truth and honesty,Quotes about truth and honesty,0.606347159837484,1.0,0.0,1.0,0.7575286927663041,0.606347159837484,1.0,0.5,0.776586789959371,5
