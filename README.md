@@ -1,31 +1,37 @@
 # RAG-Based Semantic Quote Retrieval System
 
-**Assignment**: Vijayi WFH Technologies - Task 2  
-**Topic**: AI/ML - RAG System for Quote Search
+Assignment: Vijayi WFH Technologies - Task 2
+Topic: AI/ML - RAG System for Quote Search
+Author: Purushotham CV
 
-## 🎯 Project Overview
+## Project Overview
 
-A complete Retrieval Augmented Generation (RAG) system for semantic quote search using:
-- **Sentence Transformers** for embeddings
-- **FAISS** for vector similarity search
-- **Optional LLM** integration (OpenAI GPT)
-- **RAGAS** for evaluation
-- **Streamlit** for web interface
+A complete Retrieval Augmented Generation (RAG) system for semantic quote search that combines TF-IDF based retrieval with optional AI-powered response generation using Groq's Llama 3.1 model.
 
-## 📁 Project Structure
+Key Features:
+- TF-IDF vectorization for fast and accurate quote retrieval
+- Natural language query parsing with multi-hop filtering
+- AI-powered insights using Groq Llama 3.1 70B model
+- Comprehensive evaluation framework with custom metrics
+- Interactive Streamlit web interface
+
+## Project Structure
 
 ```
 VijayiwfhTask2/
-├── data_preprocessing.py       # Step 1: Load and clean data
-├── create_vector_db.py          # Step 2-3: Create embeddings + FAISS
-├── rag_pipeline.py              # Step 4: RAG implementation
-├── evaluate_rag.py              # Step 5: Evaluation with RAGAS
-├── streamlit_app.py             # Step 6: Web UI
-├── requirements.txt             # Dependencies
-└── README.md                    # This file
+├── data_preprocessing.py              # Data loading and cleaning
+├── create_simple_search.py           # TF-IDF model training
+├── rag_pipeline.py                   # RAG system with Groq integration
+├── evaluate_comprehensive.py         # Evaluation metrics
+├── streamlit_advanced_app.py         # Web application
+├── quotes_preprocessed.csv           # Processed dataset (2,508 quotes)
+├── search_system.pkl                 # Trained TF-IDF model
+├── comprehensive_evaluation_results.csv  # Evaluation metrics
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Documentation
 ```
 
-## 🚀 Quick Start
+## Installation and Setup
 
 ### 1. Install Dependencies
 
@@ -33,251 +39,242 @@ VijayiwfhTask2/
 pip install -r requirements.txt
 ```
 
-### 2. Run Complete Pipeline
+### 2. Set Up API Key (Optional for AI Features)
+
+Create a `.env` file in the project root:
+```
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+### 3. Run the Pipeline
 
 ```bash
 # Step 1: Preprocess data
 python data_preprocessing.py
 
-# Step 2-3: Create vector database
-python create_vector_db.py
+# Step 2: Create search system
+python create_simple_search.py
 
-# Step 4: Test RAG pipeline
-python rag_pipeline.py
+# Step 3: Run evaluation
+python evaluate_comprehensive.py
 
-# Step 5: Evaluate system
-python evaluate_rag.py
-
-# Step 6: Launch web app
-streamlit run streamlit_app.py
+# Step 4: Launch web application
+streamlit run streamlit_advanced_app.py
 ```
 
-## 📊 System Architecture
+## System Architecture
 
 ```
 User Query
     ↓
-[Sentence Transformer]
+Natural Language Parser (extract filters)
     ↓
-Query Embedding
+TF-IDF Vectorization
     ↓
-[FAISS Vector Search] → Retrieve Top-K Similar Quotes
+Cosine Similarity Search
     ↓
-Retrieved Contexts
+Multi-hop Filtering (author/gender/tags/century)
     ↓
-[LLM / Rule-Based Generator] → Generate Summary
+Top-K Results Ranking
     ↓
-Structured Response (JSON)
+AI Summary Generation (Groq Llama 3.1 - Optional)
+    ↓
+JSON Response + Visualizations
 ```
 
-## 🔧 Implementation Details
+## Implementation Details
 
-### Step 1: Data Preprocessing
-- **Dataset**: Abirate/english_quotes (HuggingFace)
-- **Records**: 2,508 quotes
-- **Processing**:
-  - Text normalization (lowercase, trim spaces)
-  - Combine quote + author + tags
-- **Output**: `quotes_preprocessed.csv`
+### Data Preprocessing
+- Dataset: Abirate/english_quotes from HuggingFace
+- Total Records: 2,508 quotes
+- Processing Steps:
+  - Text normalization (lowercase, whitespace handling)
+  - Combined text creation (quote + author + tags)
+- Output: quotes_preprocessed.csv
 
-### Step 2-3: Embeddings & Vector DB
-- **Model**: all-MiniLM-L6-v2 (384 dimensions)
-- **Embedding Strategy**: Sentence-level semantic encoding
-- **Vector Store**: FAISS IndexFlatIP (cosine similarity)
-- **Output**: `faiss_index.bin`, `quote_model/`, `quote_data.pkl`
+### Search System (TF-IDF)
+- Vectorizer: TfidfVectorizer with 1,000 features
+- N-gram Range: (1, 2) for better phrase matching
+- Similarity Metric: Cosine similarity
+- Search Speed: Under 300ms per query
+- Model Size: Approximately 1.2 MB
 
-### Step 4: RAG Pipeline
-- **Retrieval**: Top-K semantic search
-- **Generation**: 
-  - Rule-based (fast, no API needed)
-  - LLM-based (OpenAI GPT-3.5/4, optional)
-- **Output Format**: JSON with query, results, and summary
+### RAG Pipeline
+- Retrieval: TF-IDF based semantic search
+- Generation Options:
+  - Rule-based summaries (fast, no API required)
+  - AI-powered insights using Groq Llama 3.1 70B
+- Multi-hop Query Support:
+  - Tag filtering (ALL tags must match)
+  - Century-based filtering (ancient/modern authors)
+  - Gender and author filtering
+- Response Format: Structured JSON with metadata
 
-```json
-{
-  "query": "quotes about hope",
-  "results": [
-    {
-      "rank": 1,
-      "quote": "Hope is the thing with feathers...",
-      "author": "Emily Dickinson",
-      "tags": ["hope", "inspiration"],
-      "score": 0.8543
-    }
-  ],
-  "summary": "Found 5 relevant quotes..."
-}
-```
+### Evaluation Metrics
+Framework: Custom comprehensive evaluation + RAGAS integration
 
-### Step 5: Evaluation
-- **Framework**: RAGAS
-- **Metrics**:
-  - Context Precision
-  - Context Recall
-  - Faithfulness
-  - Answer Relevancy
-- **Output**: `evaluation_results.json`, `evaluation_report.md`
+Performance Results:
+- Overall Score: 73.85%
+- Retrieval Quality: 57.41%
+- Precision: 96.00%
+- Diversity: 92.00%
+- Response Quality: 67.5%
 
-### Step 6: Streamlit UI
-- **Features**:
-  - Search interface
-  - Adjustable top-K results
-  - Display with scores
-  - JSON/TXT export
-- **Launch**: `streamlit run streamlit_app.py`
+### Web Application Features
+- Natural language search interface
+- Advanced filtering options
+- AI-powered summary toggle
+- Interactive visualizations (Plotly):
+  - Similarity score distribution
+  - Author frequency analysis
+  - Tag distribution charts
+  - Dataset overview
+- JSON export functionality
+- Real-time search results
 
-## 💡 Example Usage
+## Usage Examples
 
-### Python API
+### Basic Search
 
 ```python
-from rag_pipeline import QuoteRAGSystem
+# In Python
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import pickle
 
-# Initialize system
-rag = QuoteRAGSystem(use_openai=False)
+# Load search system
+with open('search_system.pkl', 'rb') as f:
+    data = pickle.load(f)
+
+vectorizer = data['vectorizer']
+tfidf_matrix = data['tfidf_matrix']
 
 # Search
-response = rag.query("quotes about hope by Oscar Wilde", top_k=5)
-
-# Access results
-for result in response['results']:
-    print(f"{result['quote']} - {result['author']}")
+query = "wisdom and knowledge"
+query_vec = vectorizer.transform([query])
+similarities = cosine_similarity(query_vec, tfidf_matrix)[0]
+top_indices = similarities.argsort()[-5:][::-1]
 ```
 
-### CLI
+### Advanced Multi-hop Queries
 
-```bash
-# Quick search
-python -c "from rag_pipeline import QuoteRAGSystem; \
-           rag = QuoteRAGSystem(); \
-           print(rag.query('inspirational quotes')['summary'])"
-```
+Examples of supported natural language queries:
+- "quotes about courage by women authors"
+- "wisdom from ancient philosophers"
+- "quotes tagged with 'life' and 'love' by 20th century authors"
+- "inspirational quotes by Shakespeare"
 
-## 📈 Performance
+## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
 | Total Quotes | 2,508 |
-| Embedding Dimension | 384 |
-| Search Time | <100ms |
-| Model Size | ~90MB |
-| Index Size | ~3MB |
+| TF-IDF Features | 1,000 |
+| Search Speed | <300ms |
+| Precision | 96% |
+| Overall Score | 73.85% |
+| Model Size | 1.2 MB |
 
-## 🔑 Optional: OpenAI Integration
+## Key Features
 
-For enhanced summaries using GPT:
+- Semantic Search: TF-IDF based similarity matching
+- Fast Retrieval: Optimized vector operations
+- Flexible Generation: Works with or without AI API
+- Comprehensive Evaluation: Multiple quality metrics
+- Interactive UI: User-friendly Streamlit interface
+- Export Options: JSON download functionality
+- Visualizations: Interactive charts for result analysis
 
-1. Create `.env` file:
-```
-OPENAI_API_KEY=your_api_key_here
-```
+## Technical Decisions
 
-2. Use in code:
-```python
-rag = QuoteRAGSystem(use_openai=True)
-response = rag.query("your query", use_llm=True)
-```
+### Why TF-IDF over Neural Embeddings?
+- Faster training and inference
+- No GPU requirements
+- Interpretable feature importance
+- Excellent precision (96%) on this dataset
+- Smaller model size and memory footprint
 
-## 🧪 Testing
+### Groq vs OpenAI for LLM
+- Groq provides faster inference (Llama 3.1 70B)
+- Cost-effective API pricing
+- High-quality natural language generation
+- OpenAI-compatible API interface
 
-```bash
-# Test data preprocessing
-python data_preprocessing.py
-
-# Test vector DB creation
-python create_vector_db.py
-
-# Test RAG pipeline
-python rag_pipeline.py
-
-# Run evaluation
-python evaluate_rag.py
-```
-
-## 📝 Key Features
-
-✅ **Semantic Search**: Understanding query intent, not just keywords  
-✅ **Fast Retrieval**: FAISS enables millisecond search  
-✅ **Flexible Generation**: Works with/without LLM  
-✅ **Evaluation Framework**: RAGAS metrics for quality assessment  
-✅ **Web Interface**: User-friendly Streamlit app  
-✅ **Export Options**: JSON and text formats  
-
-## 🎓 Interview Talking Points
-
-### 1. **Why RAG over fine-tuning?**
-- RAG provides up-to-date information without retraining
-- Combines retrieval accuracy with generation fluency
-- More interpretable (can trace sources)
-
-### 2. **Model Selection**
-- MiniLM: Lightweight (384-dim) yet effective
-- Good balance between speed and accuracy
-- Proven performance on semantic similarity tasks
-
-### 3. **FAISS vs Alternatives**
-- FAISS: Production-ready, highly optimized
-- Supports billions of vectors
-- Multiple index types for different use cases
-
-### 4. **Evaluation Strategy**
-- RAGAS provides comprehensive RAG-specific metrics
+### Evaluation Approach
+- Combined RAGAS framework with custom metrics
 - Measures both retrieval and generation quality
-- Enables continuous improvement tracking
+- Tracks precision, diversity, and relevance
+- Provides actionable insights for improvement
 
-### 5. **Production Considerations**
-- Caching for frequent queries
-- Batch processing for efficiency
-- Monitoring and logging
-- A/B testing framework
+## System Requirements
 
-## 🔄 Future Enhancements
+- Python 3.8 or higher
+- 4GB RAM minimum
+- Internet connection for initial data download
+- Groq API key (optional, for AI features)
 
-1. **Fine-tuning**: Domain-specific model training
-2. **Query Expansion**: Synonyms and paraphrases
-3. **Re-ranking**: Two-stage retrieval pipeline
-4. **Multi-modal**: Support images/audio
-5. **User Feedback**: Click data for improvement
-
-## 📚 Dependencies
+## Dependencies
 
 Core libraries:
-- `sentence-transformers==2.5.1`
-- `faiss-cpu`
-- `streamlit`
-- `datasets`
-- `pandas`
-- `numpy`
-- `ragas`
-- `openai` (optional)
-- `python-dotenv` (optional)
+- scikit-learn
+- pandas
+- numpy
+- streamlit
+- plotly
+- datasets (HuggingFace)
+- ragas
+- python-dotenv
+- openai (for Groq API compatibility)
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Issue: Model download slow
-**Solution**: Pre-download model:
-```python
-from sentence_transformers import SentenceTransformer
-SentenceTransformer('all-MiniLM-L6-v2')
-```
+### Issue: Dataset download fails
+Solution: Check internet connection and HuggingFace dataset availability
 
-### Issue: FAISS import error
-**Solution**: Install CPU version:
-```bash
-pip install faiss-cpu
-```
+### Issue: Model file not found
+Solution: Run create_simple_search.py to generate search_system.pkl
 
-### Issue: OpenAI API error
-**Solution**: Check API key in `.env` file
+### Issue: AI summaries not working
+Solution: Verify GROQ_API_KEY is set correctly in .env file
 
-## 📄 License
+### Issue: Streamlit port already in use
+Solution: Use `streamlit run streamlit_advanced_app.py --server.port=8502`
+
+## Future Enhancements
+
+1. Neural embedding models for improved semantic understanding
+2. Query expansion with synonyms
+3. User feedback integration for relevance tuning
+4. Caching layer for frequent queries
+5. Multi-language support
+6. Advanced re-ranking algorithms
+
+## Project Evaluation Results
+
+### Retrieval Performance
+- Top-1 Accuracy: 88.24%
+- Top-5 Precision: 96%
+- Average Similarity Score: 73.85%
+
+### System Capabilities
+- Handles complex multi-hop queries
+- Supports natural language input
+- Real-time filtering and ranking
+- AI-enhanced response generation
+
+## License
 
 Educational project for interview assignment.
 
-## 👤 Author
+## Author
 
+Purushotham CV
 Assignment submission for Vijayi WFH Technologies
+Date: January 2026
 
----
+## Acknowledgments
 
-**Built with ❤️ using Python, Transformers, and Modern NLP**
+- Dataset: Abirate/english_quotes (HuggingFace)
+- AI Model: Groq Llama 3.1 70B
+- Framework: Streamlit for web interface
+- Evaluation: RAGAS framework
