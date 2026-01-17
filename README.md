@@ -3,7 +3,6 @@
 **Assignment**: Vijayi WFH Technologies - Task 2  
 **Topic**: AI/ML - RAG System for Quote Search
 
-## 🎯 Project Overview
 
 A complete Retrieval Augmented Generation (RAG) system for semantic quote search using:
 - **Sentence Transformers** for embeddings
@@ -12,7 +11,6 @@ A complete Retrieval Augmented Generation (RAG) system for semantic quote search
 - **RAGAS** for evaluation
 - **Streamlit** for web interface
 
-## 📁 Project Structure
 
 ```
 VijayiwfhTask2/
@@ -25,7 +23,7 @@ VijayiwfhTask2/
 └── README.md                    # This file
 ```
 
-## 🚀 Quick Start
+
 
 ### 1. Install Dependencies
 
@@ -126,7 +124,7 @@ Structured Response (JSON)
   - JSON/TXT export
 - **Launch**: `streamlit run streamlit_app.py`
 
-## 💡 Example Usage
+
 
 ### Python API
 
@@ -267,17 +265,4 @@ SentenceTransformer('all-MiniLM-L6-v2')
 pip install faiss-cpu
 ```
 
-### Issue: OpenAI API error
-**Solution**: Check API key in `.env` file
 
-## 📄 License
-
-Educational project for interview assignment.
-
-## 👤 Author
-
-Assignment submission for Vijayi WFH Technologies
-
----
-
-**Built with ❤️ using Python, Transformers, and Modern NLP**
