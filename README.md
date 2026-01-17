@@ -4,14 +4,10 @@ Assignment: Vijayi WFH Technologies - Task 2
 Topic: AI/ML - RAG System for Quote Search
 Author: Purushotham CV
 
-<<<<<<< HEAD
 ## Project Overview
-=======
->>>>>>> 0cbd54e567c9a76de828c6fe90094356420c1951
 
 A complete Retrieval Augmented Generation (RAG) system for semantic quote search that combines TF-IDF based retrieval with optional AI-powered response generation using Groq's Llama 3.1 model.
 
-<<<<<<< HEAD
 Key Features:
 - TF-IDF vectorization for fast and accurate quote retrieval
 - Natural language query parsing with multi-hop filtering
@@ -20,8 +16,6 @@ Key Features:
 - Interactive Streamlit web interface
 
 ## Project Structure
-=======
->>>>>>> 0cbd54e567c9a76de828c6fe90094356420c1951
 
 ```
 VijayiwfhTask2/
@@ -37,11 +31,7 @@ VijayiwfhTask2/
 └── README.md                         # Documentation
 ```
 
-<<<<<<< HEAD
 ## Installation and Setup
-=======
-
->>>>>>> 0cbd54e567c9a76de828c6fe90094356420c1951
 
 ### 1. Install Dependencies
 
@@ -142,11 +132,7 @@ Performance Results:
 - JSON export functionality
 - Real-time search results
 
-<<<<<<< HEAD
 ## Usage Examples
-=======
-
->>>>>>> 0cbd54e567c9a76de828c6fe90094356420c1951
 
 ### Basic Search
 
@@ -248,7 +234,6 @@ Solution: Check internet connection and HuggingFace dataset availability
 ### Issue: Model file not found
 Solution: Run create_simple_search.py to generate search_system.pkl
 
-<<<<<<< HEAD
 ### Issue: AI summaries not working
 Solution: Verify GROQ_API_KEY is set correctly in .env file
 
@@ -293,6 +278,3 @@ Date: January 2026
 - AI Model: Groq Llama 3.1 70B
 - Framework: Streamlit for web interface
 - Evaluation: RAGAS framework
-=======
-
->>>>>>> 0cbd54e567c9a76de828c6fe90094356420c1951
